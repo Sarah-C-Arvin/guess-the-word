@@ -7,8 +7,21 @@ const remainingGuessesSpan = document.querySelector(".remaining span");//Display
 const message = document.querySelector(".message");//Message when letter is guessed
 const playAgainButton = document.querySelector(".play-again");//Play again button
 
-const word = "magnolia";
+let word = "magnolia";
 const lettersGuessed = [];
+let guessesRemaining = 8;
+
+const getWord = async function(){
+    const response = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    const words = await response.text();
+    //console.log(words);
+    const wordArray = words.split("\n");
+    //console.log(wordArray);
+    const randomIndex = Math.floor(Math.random()*wordArray.length);
+    word = wordArray[randomIndex].trim();
+    placeholder(word);
+};
+getWord();
 
 const placeholder = function(word){
     const placeholderLetters = [];
@@ -53,6 +66,7 @@ const makeGuess = function(guess){
     } else {
         lettersGuessed.push(guess);
         console.log(lettersGuessed);
+        updateRemainingGuesses(guess);
         showLettersGuessed();
         wordInProgress(lettersGuessed);
     }
@@ -82,6 +96,23 @@ const wordInProgress = function(lettersGuessed){
     console.log(revealWord);
     currentWord.innerText = revealWord.join("");
     didIWin();
+};
+
+const updateRemainingGuesses = function(guess){
+    const upperWord = word.toUpperCase();
+    if (!upperWord.includes(guess)){
+        message.innerText = `Nope, no ${guess} in this word!`;
+        guessesRemaining -= 1;
+    } else {
+        message.innerText = `Nice! This word totally has a ${guess}.`;
+    }
+    if (guessesRemaining === 0){
+        message.innerHTML = `You're out of guesses! The word was <span class = "highlight">${word}</span>.`;
+        } else if  (guessesRemaining === 1){
+            remainingGuessesSpan.innerText = `${guessesRemaining} guess`;
+        } else {
+            remainingGuessesSpan.innerText = `${guessesRemaining} guess`;
+        }
 };
 
 const didIWin = function(){
